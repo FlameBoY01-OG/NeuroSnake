@@ -110,3 +110,10 @@ class DQNAgent:
     def load(self, path):
         self.policy.load_state_dict(torch.load(path, map_location=self.device))
         self.target.load_state_dict(self.policy.state_dict())
+
+
+    def q_values(self, state):
+        with torch.no_grad():
+            s = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
+            q = self.policy(s).squeeze(0)
+            return q.detach().cpu().numpy()
