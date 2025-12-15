@@ -4,4 +4,4 @@ __pycache__/
 venv/
 .venv/
 .ipynb_checkpoints/
-.model_checkpoints/
+model_checkpoints/
