@@ -86,18 +86,62 @@ Examples:
     args = parser.parse_args()
     
     if not args.command:
-        # Default to dashboard if model exists and training log present
-        if os.path.exists("model_checkpoints/policy_final.pth") and os.path.exists("training_log.txt"):
-            print("No command specified - showing complete dashboard\n")
-            args.command = "dashboard"
-        elif os.path.exists("model_checkpoints/policy_final.pth"):
-            print("No command specified - launching visualization (use --help to see all commands)\n")
-            args.command = "play"
-            args.model = "model_checkpoints/policy_final.pth"
-            args.fps = 14
+        # Check if final model exists, if not train it
+        if not os.path.exists("model_checkpoints/policy_final.pth"):
+            print("🚨 No trained model found!")
+            print("   Starting training process...\n")
+            from training.train import train
+            train(num_episodes=1000)
+            print("\n✅ Training complete!\n")
+        
+        # Show complete dashboard
+        print("\n" + "="*70)
+        print("NEUROSNAKE COMPLETE ANALYTICS DASHBOARD")
+        print("="*70 + "\n")
+        
+        model_path = "model_checkpoints/policy_final.pth"
+        
+        # 1. Evaluation
+        print("📊 STEP 1/3: Evaluating model performance...")
+        from training.evaluate import evaluate_model, print_statistics
+        stats = evaluate_model(model_path, num_episodes=50)
+        print_statistics(stats)
+        
+        # 2. Training plots
+        print("\n📈 STEP 2/3: Generating training plots...")
+        from visualization.plot_results import plot_training_results
+        if os.path.exists("training_log.txt"):
+            plot_training_results("training_log.txt")
+            print("✓ Training plots saved to plots/ directory")
         else:
-            parser.print_help()
-            sys.exit(1)
+            print("⚠️  training_log.txt not found - skipping plots")
+        
+        # 3. Heatmap
+        print("\n🗺️  STEP 3/3: Generating exploration heatmap...")
+        from visualization.heatmap import generate_heatmap
+        generate_heatmap(model_path, episodes=100, output_path="plots/heatmap.png")
+        
+        print("\n" + "="*70)
+        print("✅ DASHBOARD COMPLETE!")
+        print("="*70)
+        print("\nGenerated files:")
+        if os.path.exists("training_log.txt"):
+            print("  - plots/score_vs_episode.png")
+            print("  - plots/reward_vs_episode.png")
+            print("  - plots/loss_vs_episode.png")
+            print("  - plots/training_dashboard.png")
+        print("  - plots/heatmap.png")
+        print("\n" + "="*70)
+        print("🎮 LAUNCHING LIVE VISUALIZATION...")
+        print("="*70)
+        print("Press ESC to exit\n")
+        
+        # Launch visualization
+        os.environ['MODEL_PATH'] = model_path
+        os.environ['FPS'] = '14'
+        import subprocess
+        subprocess.run([sys.executable, "-m", "visualization.complete_view"])
+        sys.exit(0)
     
     # Execute commands
     if args.command == "train":
