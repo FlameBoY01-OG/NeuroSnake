@@ -1,142 +1,129 @@
 # 🐍 NeuroSnake - Deep Q-Learning Snake AI
 
-> **⚠️ WORK IN PROGRESS** - Active development and improvements ongoing
-
-A professional implementation of Deep Q-Learning (DQN) applied to the classic Snake game, featuring real-time neural network visualization and GPU-accelerated training.
+A professional Deep Q-Learning implementation for Snake with real-time neural network visualization and explainable AI features.
 
 ## 🎯 Features
 
-- **Simple but Effective DQN Architecture** - 3-layer network (128→128→4) optimized for Snake gameplay
-- **Clean State Representation** - 11 features capturing danger, direction, and food location
-- **GPU Training** - CUDA-accelerated for fast learning (20-30 minutes for 1000 episodes)
-- **Real-time Visualization** - Watch the neural network think as the snake plays
-- **Catppuccin-themed UI** - Beautiful, research-grade visualization interface
+- **SimpleDQN Architecture** - 3-layer network (11→128→128→4) optimized for Snake
+- **11-Feature State** - Clean representation: danger detection, direction, food location
+- **GPU Training** - CUDA-accelerated learning
+- **Complete Visualization** - Game, neural network, and Q-values in one window
+- **Training Analytics** - Score/reward/loss plots and comprehensive statistics
+- **Death Analysis** - Tracks wall collisions vs self-collisions
 
 ## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.8+
-- PyTorch with CUDA support (recommended)
-- Pygame
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/NeuroSnake.git
-cd NeuroSnake
-
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-### Training
+### Usage
+
+The project includes a unified CLI interface:
 
 ```bash
-# Train a new model (1000 episodes, ~20-30 mins on GPU)
-python -m training.train
-```
+# Train a new model
+python main.py train
+python main.py train --episodes 2000  # Custom episode count
 
-### Play & Visualize
+# Watch the trained agent play with visualization
+python main.py play
+python main.py play --model model_checkpoints/policy_ep800.pth  # Specific checkpoint
 
-```bash
-# Watch the trained agent play with neural network visualization
-python -m visualization.render
+# Evaluate model performance
+python main.py eval
+python main.py eval --episodes 200  # More episodes for better stats
+python main.py eval --compare  # Compare all checkpoints
+
+# Test environment setup
+python main.py test
+
+# Generate training plots (after training)
+python main.py plot
+
+# Record gameplay as GIF
+python main.py record --episodes 3
 ```
 
 ## 📊 Performance
 
-- **Episode 200**: Agent starts eating food consistently
-- **Episode 500**: Average score of 1-2
-- **Episode 800**: Average score of 5-8
-- **Episode 1000**: Average score of 10-12 (professional play level)
+**Best Checkpoint**: `policy_ep300.pth`
+- Average Score: **38.33**
+- Max Score: **54**
+- Average Steps: **446.67**
 
-## 🧠 Architecture
+**Final Model**: `policy_final.pth` (Episode 1000)
+- Average Score: **27.80**
+- Death Causes: **100% self-collision** (excellent wall avoidance!)
 
-### Neural Network
+**Known Issue**: Model has perfect wall avoidance but dies exclusively from self-collisions. Future work should improve body awareness.
 
-```
-Input (11 features) → Hidden (128) → Hidden (128) → Output (4 actions)
-                         ReLU            ReLU
-```
+## 🎮 Visualization Features
 
-### State Features (11 total)
+The complete view shows:
 
-- **Danger Detection (3)**: Immediate collision detection in straight, left, right directions
-- **Current Direction (4)**: One-hot encoding of snake's heading
-- **Food Location (4)**: Binary indicators for food in each cardinal direction
+- **Game Board**: Snake, food, grid (left side)
+- **Neural Network**: All 4 layers with animated connections (right side)
+- **Q-Values**: Bar chart showing decision-making (bottom right)
+- **Stats**: Score, length, FPS, current action (bottom left)
 
-### Reward Structure
-
-- **+10**: Eating food
-- **-10**: Collision (death)
-- **0**: Normal move
-
-## 🛠️ Project Structure
-
-```
-NeuroSnake/
-├── env/
-│   ├── __init__.py
-│   └── snake_env.py          # Snake game environment
-├── model/
-│   ├── __init__.py
-│   ├── agent.py               # DQN Agent implementation
-│   ├── dqn.py                 # Neural network architecture
-│   └── replay_memory.py       # Experience replay buffer
-├── training/
-│   ├── train.py               # Training loop
-│   └── evaluate.py            # Model evaluation
-├── visualization/
-│   ├── __init__.py
-│   ├── render.py              # Main visualization
-│   ├── render_new.py          # Enhanced visualizer
-│   ├── activations.py         # Neural activation display
-│   └── q_panel.py             # Q-value display panel
-├── model_checkpoints/         # Saved models
-├── assets/                    # Game assets
-└── requirements.txt
-```
-
-## 📈 Training Details
-
-- **Algorithm**: Deep Q-Network (DQN)
-- **Learning Rate**: 1e-3
-- **Batch Size**: 64
-- **Discount Factor (γ)**: 0.99
-- **Epsilon Decay**: Linear from 1.0 to 0.01 over 80k steps
-- **Target Network Update**: Every 1000 steps
-- **Memory Size**: 50,000 transitions
-
-## 🎮 Controls
-
-During visualization:
-
-- **ESC**: Quit
-- Watch the AI play automatically
+Press **ESC** to exit visualization.
 
 ## 🔧 Configuration
 
-Edit hyperparameters in [training/train.py](training/train.py):
+Edit values in files directly:
 
-- `num_episodes`: Number of training episodes
-- `lr`: Learning rate
-- `batch_size`: Mini-batch size
-- `gamma`: Discount factor
+- Grid size: `env/snake_env.py` (default: 20×20)
+- Network size: `model/dqn.py` (default: 128 hidden units)
+- Training params: `training/train.py` (episodes, lr, batch_size)
+- Visualization: `visualization/complete_view.py` (colors, layout)
 
-## 📝 License
+## 📝 Training Tips
 
-This project is open source and available under the MIT License.
+1. **Monitor early performance** - Good models show progress by episode 200-400
+2. **Try different learning rates** - 1e-3 works well, try 5e-4 for stability
+3. **Watch the plots** - Steady score increase = good learning
+4. **Death analysis matters** - 100% self-collision means body awareness needs work
 
-## 🤝 Contributing
+## 🐛 Troubleshooting
 
-Contributions, issues, and feature requests are welcome! This is an active work-in-progress project.
+**ModuleNotFoundError: No module named 'torch'**
 
-## 📧 Contact
+```bash
+# Activate conda environment first
+conda activate base
+python main.py
+```
 
-For questions or suggestions, please open an issue on GitHub.
+**CUDA not available**
+
+- Works fine on CPU (just slower training)
+- For GPU: Install PyTorch with CUDA support
+
+**No plots showing**
+
+- Training log doesn't exist - run training first
+- Plots generate after: `python main.py train`
+
+## 🎯 Future Improvements
+
+- [ ] Add heatmap visualization for explored states
+- [ ] Implement curriculum learning (start with smaller grid)
+- [ ] Try Dueling DQN or Rainbow DQN
+- [ ] Add MP4 video recording (currently GIF only)
+- [ ] Improve body awareness (reduce self-collision deaths)
+
+## 📜 License
+
+MIT License - Feel free to use for learning and projects!
+
+## 🙏 Acknowledgments
+
+Built with PyTorch, Pygame, and love for reinforcement learning.
 
 ---
 
-**Status**: 🚧 Active Development - Model training successfully, achieving professional-level play
+**Made with ❤️ for AI enthusiasts**

@@ -14,11 +14,14 @@ Transition = namedtuple("Transition", ("s", "a", "r", "s2", "d"))
 
 class DQNAgent:
     """
-    Research-grade DQN Agent with:
-    - Dueling DQN architecture for better value estimation
-    - Prioritized Experience Replay for efficient learning
+    DQN Agent with Double DQN and target network.
+    
+    Features:
     - Double DQN for reduced overestimation bias
-    - Gradient clipping and target network soft updates
+    - Target network with periodic hard updates
+    - Experience replay buffer
+    - Gradient clipping for training stability
+    - Optional prioritized replay (configurable)
     """
     def __init__(
         self,

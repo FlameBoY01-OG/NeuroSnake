@@ -43,6 +43,7 @@ class SimpleDQN(nn.Module):
             )
 
 # Alias for backward compatibility
+# Note: This is actually a simple MLP, not true Dueling DQN architecture
 DuelingDQN = SimpleDQN
 
 
