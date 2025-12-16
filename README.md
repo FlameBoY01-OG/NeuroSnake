@@ -51,11 +51,13 @@ python main.py record --episodes 3
 ## 📊 Performance
 
 **Best Checkpoint**: `policy_ep300.pth`
+
 - Average Score: **38.33**
 - Max Score: **54**
 - Average Steps: **446.67**
 
 **Final Model**: `policy_final.pth` (Episode 1000)
+
 - Average Score: **27.80**
 - Death Causes: **100% self-collision** (excellent wall avoidance!)
 
