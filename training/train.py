@@ -42,6 +42,11 @@ def train(
 
     total_steps = 0
     episode_rewards = []
+    
+    # Create training log file
+    log_file = open("training_log.txt", "w")
+    log_file.write("Episode | Reward | Avg50 | Score | Steps | Epsilon | Loss\n")
+    log_file.write("-" * 70 + "\n")
 
     for ep in range(1, num_episodes + 1):
         state = env.reset(randomize_start=True)
@@ -72,7 +77,10 @@ def train(
         if ep % 10 == 0:
             avg_recent = float(np.mean(episode_rewards[-50:])) if len(episode_rewards) >= 1 else ep_reward
             avg_loss = float(np.mean(ep_loss)) if ep_loss else 0.0
-            print(f"Ep: {ep:4d} | Reward: {ep_reward:6.2f} | Avg50: {avg_recent:6.2f} | Score: {env.score:2d} | Steps: {total_steps} | Eps: {eps:.3f} | Loss: {avg_loss:.4f}")
+            log_line = f"Ep: {ep:4d} | Reward: {ep_reward:6.2f} | Avg50: {avg_recent:6.2f} | Score: {env.score:2d} | Steps: {total_steps} | Eps: {eps:.3f} | Loss: {avg_loss:.4f}"
+            print(log_line)
+            log_file.write(log_line + "\n")
+            log_file.flush()
 
         if ep % save_every == 0:
             fn = os.path.join(model_dir, f"policy_ep{ep}.pth")
