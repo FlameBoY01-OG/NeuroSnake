@@ -74,11 +74,23 @@ Examples:
     record_parser.add_argument("--output", type=str, default="recordings")
     record_parser.add_argument("--fps", type=int, default=10)
     
+    # Heatmap command
+    heatmap_parser = subparsers.add_parser("heatmap", help="Generate exploration heatmap")
+    heatmap_parser.add_argument("--model", type=str, default="model_checkpoints/policy_final.pth")
+    heatmap_parser.add_argument("--episodes", type=int, default=100)
+    heatmap_parser.add_argument("--output", type=str, default="plots/heatmap.png")
+    
+    # Dashboard command - shows everything
+    dashboard_parser = subparsers.add_parser("dashboard", help="Show all analytics (plots + heatmap + evaluation)")
+    
     args = parser.parse_args()
     
     if not args.command:
-        # Default to play mode if model exists, otherwise show help
-        if os.path.exists("model_checkpoints/policy_final.pth"):
+        # Default to dashboard if model exists and training log present
+        if os.path.exists("model_checkpoints/policy_final.pth") and os.path.exists("training_log.txt"):
+            print("No command specified - showing complete dashboard\n")
+            args.command = "dashboard"
+        elif os.path.exists("model_checkpoints/policy_final.pth"):
             print("No command specified - launching visualization (use --help to see all commands)\n")
             args.command = "play"
             args.model = "model_checkpoints/policy_final.pth"
@@ -158,6 +170,50 @@ Examples:
         from visualization.record_gameplay import record_gameplay
         print(f"Recording {args.episodes} episodes to {args.output}/")
         record_gameplay(args.model, args.episodes, args.output, args.fps)
+    
+    elif args.command == "heatmap":
+        from visualization.heatmap import generate_heatmap
+        print(f"Generating exploration heatmap from {args.model}...")
+        generate_heatmap(args.model, args.episodes, args.output)
+    
+    elif args.command == "dashboard":
+        print("\n" + "="*70)
+        print("NEUROSNAKE COMPLETE ANALYTICS DASHBOARD")
+        print("="*70 + "\n")
+        
+        model_path = "model_checkpoints/policy_final.pth"
+        
+        # 1. Evaluation
+        print("📊 STEP 1/3: Evaluating model performance...")
+        from training.evaluate import evaluate_model, print_statistics
+        stats = evaluate_model(model_path, num_episodes=50)
+        print_statistics(stats)
+        
+        # 2. Training plots
+        print("\n📈 STEP 2/3: Generating training plots...")
+        from visualization.plot_results import plot_training_results
+        if os.path.exists("training_log.txt"):
+            plot_training_results("training_log.txt")
+            print("✓ Training plots saved to plots/ directory")
+        else:
+            print("⚠️  training_log.txt not found - skipping plots")
+            print("   Run training first with: python main.py train")
+        
+        # 3. Heatmap
+        print("\n🗺️  STEP 3/3: Generating exploration heatmap...")
+        from visualization.heatmap import generate_heatmap
+        generate_heatmap(model_path, episodes=100, output_path="plots/heatmap.png")
+        
+        print("\n" + "="*70)
+        print("✅ DASHBOARD COMPLETE!")
+        print("="*70)
+        print("\nGenerated files:")
+        print("  - plots/score_vs_episode.png")
+        print("  - plots/reward_vs_episode.png")
+        print("  - plots/loss_vs_episode.png")
+        print("  - plots/training_dashboard.png")
+        print("  - plots/heatmap.png")
+        print("\n💡 Run 'python main.py play' to watch the agent in action!")
 
 if __name__ == "__main__":
     main()

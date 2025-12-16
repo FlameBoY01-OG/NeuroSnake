@@ -46,6 +46,12 @@ python main.py plot
 
 # Record gameplay as GIF
 python main.py record --episodes 3
+
+# Generate exploration heatmap
+python main.py heatmap --episodes 100
+
+# Show complete analytics dashboard (eval + plots + heatmap)
+python main.py dashboard
 ```
 
 ## 📊 Performance
@@ -110,13 +116,11 @@ python main.py
 - Training log doesn't exist - run training first
 - Plots generate after: `python main.py train`
 
-## 🎯 Future Improvements
+**Want to see everything at once?**
 
-- [ ] Add heatmap visualization for explored states
-- [ ] Implement curriculum learning (start with smaller grid)
-- [ ] Try Dueling DQN or Rainbow DQN
-- [ ] Add MP4 video recording (currently GIF only)
-- [ ] Improve body awareness (reduce self-collision deaths)
+```bash
+python main.py dashboard  # Shows evaluation + plots + heatmap
+```
 
 ## 📜 License
 

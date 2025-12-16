@@ -87,9 +87,12 @@ def train(
             agent.save(fn)
             print(f"Saved: {fn}")
 
+    log_file.close()
+    
     agent.save(os.path.join(model_dir, "policy_final.pth"))
     print(f"\nTraining complete! Final avg reward: {np.mean(episode_rewards[-100:]):.2f}")
     print(f"Model saved: {os.path.join(model_dir, 'policy_final.pth')}")
+    print(f"Training log saved: training_log.txt")
 
 if __name__ == "__main__":
     train()
